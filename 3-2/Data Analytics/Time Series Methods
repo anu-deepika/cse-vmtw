@@ -1,1 +1,88 @@
+# Time Series Methods
 
+## 1. ARIMA (Autoregressive Integrated Moving Average)
+
+The ARIMA model is used for forecasting time series data. It has components that allow the model to capture patterns such as trends. For seasonal patterns, an extension called Seasonal ARIMA (SARIMA) is used.
+
+### Core Components
+
+1. **Autoregression (AR):**
+   The autoregressive part (AR) of an ARIMA model is represented by the parameter $p$. It signifies the dependence of the current observation on its previous values. Mathematically, an AR($p$) model can be represented as:
+   $$Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \epsilon_t$$
+   *Where:*
+   - $Y_t$ is the current observation
+   - $c$ is a constant
+   - $\phi_1$ to $\phi_p$ are the autoregressive parameters
+   - $\epsilon_t$ represents the error term at time $t$
+
+2. **Differencing (I):**
+   The differencing part of ARIMA is represented by the parameter $d$. It involves transforming a non-stationary time series into a stationary one by differencing consecutive observations:
+   $$Y'_t = Y_t - Y_{t-1}$$
+   *Where:*
+   - $Y'_t$ is the differenced series at time $t$
+   - $Y_t$ is the original series at time $t$
+   - $Y_{t-1}$ is the value of the series at the previous time step
+   
+   The differencing process is typically applied multiple times until stationarity is achieved. The notation $I(d)$ indicates the order of differencing required for stationarity.
+
+3. **Moving Average (MA):**
+   The moving average part (MA) of an ARIMA model is represented by the parameter $q$. It indicates the dependence of the current observation on the previous forecast errors. Mathematically, an MA($q$) model can be represented as:
+   $$Y_t = c + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + \dots + \theta_q \epsilon_{t-q}$$
+   *Where:*
+   - $Y_t$ is the current observation
+   - $c$ is a constant
+   - $\epsilon_t$ is the error at time $t$
+   - $\theta_1$ to $\theta_q$ are the moving average parameters
+
+### Working Principles
+1. **Identifying Stationarity:** ARIMA models require the time series data to be stationary (mean and variance remain constant over time).
+2. **Parameter Estimation:** Estimating parameters $p$, $d$, and $q$ involves analyzing the Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots. ACF helps determine the MA order ($q$) while PACF aids in determining the AR order ($p$).
+3. **Model Fitting:** Once parameters are determined, the model is fitted by minimizing error (often using maximum likelihood estimation) to obtain suitable coefficients.
+4. **Forecasting:** The fitted model is used to forecast future values by iterating over time.
+
+---
+
+## 2. Measures of Forecast Accuracy
+
+To evaluate how well a time series model performs, we use standard quantitative metrics comparing predicted values ($\hat{y}_t$) against actual values ($y_t$):
+
+| Metric | Formula / Description | Purpose |
+| :--- | :--- | :--- |
+| **MAE** (Mean Absolute Error) | $\frac{1}{n} \sum |y_t - \hat{y}_t|$ | Measures average magnitude of errors in absolute terms. |
+| **MSE** (Mean Squared Error) | $\frac{1}{n} \sum (y_t - \hat{y}_t)^2$ | Penalizes larger errors heavily by squaring them. |
+| **RMSE** (Root Mean Squared Error) | $\sqrt{\text{MSE}}$ | Expressed in the same units as the original data. |
+| **MAPE** (Mean Absolute Percentage Error) | $\frac{100\%}{n} \sum \left|\frac{y_t - \hat{y}_t}{y_t}\right|$ | Expresses accuracy as a percentage for easy interpretation. |
+
+---
+
+## 3. STL Approach (Seasonal-Trend Decomposition using Loess)
+
+Seasonal decomposition is a statistical technique for breaking down a time series into its essential components: trend, seasonal, and residual components.
+
+### Core Definitions
+- **Trend:** The underlying long-term progression or direction in the data.
+- **Seasonal:** The repeating patterns or cycles that occur at fixed intervals like daily, monthly, or yearly.
+- **Residual:** The random fluctuations or noise in the data that cannot be attributed to the trend or seasonal patterns.
+
+### What is Loess (STL)?
+Locally Weighted Scatterplot Smoothing (Loess) is a non-parametric regression method used for smoothing data. Seasonal-Trend decomposition using Loess (STL) is a specific method that employs Loess to separate a time series into its trend, seasonal, and residual components. It is particularly effective for handling complex and non-linear patterns.
+
+### Why Perform Seasonal Decomposition?
+1. **Pattern Identification:** Recognizes recurring trends, seasonal effects, and overall data behavior.
+2. **Forecasting:** Facilitates more accurate predictions by modeling trend, seasonal patterns, and residuals separately.
+3. **Anomaly Detection:** Makes unusual events easier to identify when they stand out against background patterns.
+4. **Statistical Analysis:** Provides a clearer picture of the time series structure for applying advanced statistical methods.
+
+### Hyperparameters in STL
+1. **seasonal:** Defines the periodicity of the seasonal component (must be an odd number). For instance, setting it to 13 captures monthly data seasonality with additional flexibility.
+2. **robust:** A boolean flag determining whether to use robust estimation in the Loess smoothing step. When set to `true`, the method becomes less sensitive to outliers or extreme values in the data.
+
+---
+
+## 4. Extract Features from Generated Model (Height, Accuracy, Energy)
+
+Once time series models are fitted and components are generated, we can extract higher-level features for advanced prediction or analysis pipelines:
+
+1. **Height / Amplitude Features:** Extract peak amplitudes, trough depths, and overall peak-to-peak range from seasonal or trend components to track structural shifts over time.
+2. **Accuracy Metrics as Features:** Rolling window calculations of error metrics (like RMSE or residuals) serve as dynamic indicators of model degradation or regime changes.
+3. **Energy / Variance Features:** Calculate signal energy (sum of squared values or variance) across residual and detail components to detect volatility spikes.
